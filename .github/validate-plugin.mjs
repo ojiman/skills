@@ -123,8 +123,14 @@ process.exit(1)
  *
  * Deliberately not a YAML parser — this repository only ever uses single-line
  * scalar values, and a dependency-free approximation that reports what it
- * cannot handle is more honest than one that quietly guesses. Block scalars
- * are reported rather than misread.
+ * cannot handle is more honest than one that quietly guesses.
+ *
+ * The catch is that "what it cannot handle" has to include the constructs a
+ * real parser *rejects*, not just the ones this code cannot read. An earlier
+ * version read a plain scalar containing ": " without complaint; every real
+ * YAML parser refuses that line, so the frontmatter was invalid and this
+ * checker still passed it. The rules below exist for that class: a value that
+ * needs quoting must be quoted.
  */
 function parseFrontmatter(block, rel) {
 	const fields = {}
@@ -132,11 +138,40 @@ function parseFrontmatter(block, rel) {
 		const match = line.match(/^([A-Za-z][A-Za-z0-9_-]*):\s*(.*)$/)
 		if (!match) continue
 		const [, key, raw] = match
-		if (raw === "|" || raw === ">" || raw.startsWith("|") || raw.startsWith(">")) {
-			finding(rel, `${key} uses a YAML block scalar, which this checker does not read — inline it on one line`)
+
+		const quoted = /^"[^"]*"$/.test(raw) || /^'[^']*'$/.test(raw)
+		if (!quoted) {
+			if (raw.startsWith("|") || raw.startsWith(">")) {
+				finding(rel, `${key} uses a YAML block scalar, which this checker does not read — inline it on one line`)
+				continue
+			}
+			// ": " ends the key in YAML's eyes, so a plain scalar containing one
+			// is parsed as a nested mapping and rejected.
+			if (raw.includes(": ")) {
+				finding(rel, `${key} contains ": " but is not quoted — YAML rejects this; wrap the whole value in double quotes`)
+				continue
+			}
+			if (raw.endsWith(":")) {
+				finding(rel, `${key} ends with ":" but is not quoted — YAML rejects this; wrap the whole value in double quotes`)
+				continue
+			}
+			// " #" starts a comment, silently truncating the value.
+			if (raw.includes(" #")) {
+				finding(rel, `${key} contains " #" but is not quoted — YAML would treat the rest as a comment`)
+				continue
+			}
+			// Leading indicator characters change the value's type or are errors.
+			if (/^[[\]{}&*!%@`,?]/.test(raw)) {
+				finding(rel, `${key} starts with the YAML indicator ${JSON.stringify(raw[0])} but is not quoted — wrap the value in double quotes`)
+				continue
+			}
+		}
+		if (/^"/.test(raw) && !quoted) {
+			finding(rel, `${key} opens with a double quote but does not close cleanly — check for an unescaped " inside the value`)
 			continue
 		}
-		fields[key] = raw.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1")
+
+		fields[key] = quoted ? raw.slice(1, -1) : raw
 	}
 	return fields
 }

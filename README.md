@@ -62,7 +62,8 @@ node .github/validate-plugin.mjs
 
 Checks `plugin.json` against Agent Plugins 1.0.0 and every `SKILL.md` against
 the Agent Skills specification: schema, name rules, `name` matching its
-directory, description presence and length, and any `SKILL.md` sitting at a
+directory, description presence and length, frontmatter values that a real
+YAML parser would reject or silently truncate, and any `SKILL.md` sitting at a
 depth where no client will find it. No dependencies. Exit code `1` means it
 found something.
 

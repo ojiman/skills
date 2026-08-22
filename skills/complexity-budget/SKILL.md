@@ -1,6 +1,6 @@
 ---
 name: complexity-budget
-description: Use when work is growing past what the user actually asked for — before introducing a new mechanism, layer, gate, framework, abstraction, or process step the user did not name; when a design doc, CI pipeline, review process, or spec has started generating its own follow-up work; when the user says they have lost track of what is being built, cannot explain why a component exists, or asks whether this is too much. Forces a stop-and-price check before the mechanism is built, not after. Also use at the start of an open-ended build to fix a stopping condition. Keywords: scope creep, over-engineering, gold plating, yak shaving, complexity budget, stop building, do we need this, simplest thing that works, why does this exist.
+description: "Use when work is growing past what the user actually asked for — before introducing a new mechanism, layer, gate, framework, abstraction, or process step the user did not name; when a design doc, CI pipeline, review process, or spec has started generating its own follow-up work; when the user says they have lost track of what is being built, cannot explain why a component exists, or asks whether this is too much. Forces a stop-and-price check before the mechanism is built, not after. Also use at the start of an open-ended build to fix a stopping condition. Keywords: scope creep, over-engineering, gold plating, yak shaving, complexity budget, stop building, do we need this, simplest thing that works, why does this exist."
 license: MIT
 ---
 
