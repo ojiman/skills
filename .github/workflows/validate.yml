@@ -1,0 +1,29 @@
+name: validate
+
+# Runs the plugin/skill checks on every push and pull request.
+#
+# The check itself is .github/validate-plugin.mjs and has no dependencies, so
+# this workflow is only three real steps: get the code, get Node, run it. The
+# same command runs locally — this file adds nothing that cannot be reproduced
+# by hand, which is the point.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Agent Plugins 1.0.0 conformance
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node .github/validate-plugin.mjs

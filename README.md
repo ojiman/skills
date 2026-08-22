@@ -44,6 +44,9 @@ skills/
     references/case-record.md
 ```
 
+A skill is only recognised in a *direct* subdirectory of `skills/`, and the
+`name` in its `SKILL.md` frontmatter must match that directory's name.
+
 ## Install
 
 Install as an Agent Plugins plugin, or copy any directory under `skills/`
@@ -51,19 +54,25 @@ into your agent's skills directory. Skills here are invoked automatically from
 their `description` — `complexity-budget` in particular is meant to fire
 *before* new mechanism is built, so it does not depend on being called by name.
 
-## 日本語
+## Checks
 
-AI エージェントには「もう十分」というブレーキがない。成果物はつねに次の成果物を
-正当化するので、連鎖は自然には止まらない。止められるのは利用者だけだが、数ステップ
-進んだ時点で利用者は次のステップを評価する語彙を失っており、「わからないまま承認する」
-状態になる。結果として、整合的でテストも通っているのに当初の目的を果たしていない
-成果物の山ができる。
+```bash
+node .github/validate-plugin.mjs
+```
 
-`complexity-budget` は、エージェントが**新しい種類の仕組み**を導入する前に必ず
-立ち止まり、(1) それが新カテゴリであると明言し、(2) 作らなかった場合に何が壊れるかを
-具体的に述べ、(3) 利用者自身の語彙で費用を説明し、(4) より小さい選択肢と推奨を提示する、
-という手順を強制する。加えて「いま止めたら、あなたの手元に何が残るか」を定期的に
-自己申告させる。
+Checks `plugin.json` against Agent Plugins 1.0.0 and every `SKILL.md` against
+the Agent Skills specification: schema, name rules, `name` matching its
+directory, description presence and length, and any `SKILL.md` sitting at a
+depth where no client will find it. No dependencies. Exit code `1` means it
+found something.
+
+It exists because these failures are silent. A renamed directory or a missing
+description does not raise an error anywhere — the skill simply never loads
+and never fires, and the only symptom is that nothing happens.
+
+The same command runs in CI on every push and pull request
+(`.github/workflows/validate.yml`). CI adds no check that cannot be
+reproduced locally by running the line above.
 
 ## License
 
