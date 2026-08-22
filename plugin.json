@@ -1,0 +1,18 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "ojiman-skills",
+  "version": "0.1.0",
+  "description": "A small personal collection of Agent Skills, each written up from something that actually went wrong on a real project. Currently: a stopping rule that makes the agent price new mechanism in the user's own vocabulary before building it.",
+  "author": {
+    "name": "ojiman"
+  },
+  "repository": "https://github.com/ojiman/skills",
+  "license": "MIT",
+  "keywords": [
+    "agent-skills",
+    "agentic-coding",
+    "guardrails",
+    "scope-creep",
+    "review"
+  ]
+}
