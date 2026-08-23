@@ -1,8 +1,8 @@
 // Checks this repository against a small, hand-picked subset of Agent
-// Plugins 1.0.0 and the Agent Skills specification — the structural
-// invariants below, not full schema conformance (no additionalProperties
-// enforcement, no type-checking of optional fields). Run it anywhere:
-// `node .github/validate-plugin.mjs`
+// Plugins 1.0.0, the Agent Skills specification, and Claude Code's own
+// .claude-plugin/ plugin format — the structural invariants below, not full
+// schema conformance (no additionalProperties enforcement, no type-checking
+// of optional fields). Run it anywhere: `node .github/validate-plugin.mjs`
 //
 // Why this exists: the failure it catches is silent. If a skill directory is
 // renamed and the `name:` in its SKILL.md is not, or a skill is nested one
@@ -15,8 +15,8 @@
 //
 // No dependencies, on purpose: nothing to install, nothing to keep updated.
 
-import { readdirSync, readFileSync } from "node:fs"
-import { join, relative } from "node:path"
+import { readdirSync, readFileSync, statSync } from "node:fs"
+import { join, relative, resolve, sep } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
@@ -42,6 +42,80 @@ if (plugin) {
 	// name: 1-64 characters, lowercase alphanumerics, hyphens and periods.
 	if (typeof plugin.name !== "string" || !/^[a-z0-9.-]{1,64}$/.test(plugin.name)) {
 		finding("plugin.json", `name must be 1-64 chars of [a-z0-9.-], found ${JSON.stringify(plugin.name)}`)
+	}
+}
+
+// --- .claude-plugin/ (Claude Code's own plugin format) ----------------------
+
+// Claude Code doesn't read root-level plugin.json (that's Agent Plugins
+// 1.0.0) — it looks for .claude-plugin/plugin.json and
+// .claude-plugin/marketplace.json instead. Both live alongside the Agent
+// Plugins manifest so this repo installs directly in either client.
+
+let claudePlugin
+try {
+	claudePlugin = JSON.parse(readFileSync(join(root, ".claude-plugin", "plugin.json"), "utf8"))
+} catch (err) {
+	finding(".claude-plugin/plugin.json", `not readable as JSON: ${err.message}`)
+}
+if (claudePlugin && typeof claudePlugin.name !== "string") {
+	finding(".claude-plugin/plugin.json", `name must be a string, found ${JSON.stringify(claudePlugin.name)}`)
+}
+
+let marketplace
+try {
+	marketplace = JSON.parse(readFileSync(join(root, ".claude-plugin", "marketplace.json"), "utf8"))
+} catch (err) {
+	finding(".claude-plugin/marketplace.json", `not readable as JSON: ${err.message}`)
+}
+if (marketplace) {
+	if (typeof marketplace.name !== "string") {
+		finding(".claude-plugin/marketplace.json", `name must be a string, found ${JSON.stringify(marketplace.name)}`)
+	}
+	if (!marketplace.owner || typeof marketplace.owner.name !== "string") {
+		finding(".claude-plugin/marketplace.json", "owner.name must be a string")
+	}
+	if (!Array.isArray(marketplace.plugins) || marketplace.plugins.length === 0) {
+		finding(".claude-plugin/marketplace.json", "plugins must be a non-empty array")
+	}
+	for (const [i, entry] of (marketplace.plugins ?? []).entries()) {
+		const label = `.claude-plugin/marketplace.json plugins[${i}]`
+		if (typeof entry.name !== "string") {
+			finding(label, `name must be a string, found ${JSON.stringify(entry.name)}`)
+		}
+		// source is required. This repo only ever uses a relative-path string
+		// (see marketplace.json), so that's the only form checked. An object
+		// source (github/url/npm/etc.) has its own schema this checker doesn't
+		// know — accepting any object here would be a pass that looks like
+		// validation without being one, the same gap the relative-path check
+		// below exists to close. Add real support for a specific object form
+		// if this repo ever adopts one, rather than accepting all of them now.
+		const rootNoTrailingSep = root.replace(/[/\\]+$/, "")
+		if (entry.source === undefined) {
+			finding(label, "source is required")
+		} else if (typeof entry.source === "string") {
+			if (!entry.source.startsWith("./")) {
+				finding(label, `relative source "${entry.source}" must start with "./"`)
+			} else {
+				// Resolve and confirm containment before touching the filesystem —
+				// "./.." starts with "./" but escapes root, and join() alone (used
+				// previously here) doesn't catch that.
+				const resolved = resolve(root, entry.source)
+				if (resolved !== rootNoTrailingSep && !resolved.startsWith(rootNoTrailingSep + sep)) {
+					finding(label, `source "${entry.source}" resolves outside the repository root`)
+				} else {
+					try {
+						if (!statSync(resolved).isDirectory()) {
+							finding(label, `source "${entry.source}" is not a directory`)
+						}
+					} catch {
+						finding(label, `source "${entry.source}" does not resolve to an existing path in the repo`)
+					}
+				}
+			}
+		} else {
+			finding(label, `source must be a relative path string — this validator only supports that form, found ${JSON.stringify(entry.source)}`)
+		}
 	}
 }
 

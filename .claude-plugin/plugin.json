@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "ojiman-skills",
+  "displayName": "ojiman's Agent Skills",
+  "description": "A small personal collection of Agent Skills, each written up from something that actually went wrong on a real project.",
+  "author": {
+    "name": "ojiman"
+  }
+}
