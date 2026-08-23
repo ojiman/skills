@@ -63,6 +63,15 @@ bare Agent Plugins 1.0.0 `plugin.json` at the repo root (tested: `marketplace
 root does not contain a supported manifest`) and only succeeds once it falls
 back to `.claude-plugin/marketplace.json`.
 
+For Codex specifically, `.claude-plugin/marketplace.json` is a *compatibility*
+path, not its canonical format — `.codex-plugin/plugin.json` is. The command
+sequence below is real and tested, not a workaround to avoid depending on;
+it's just worth knowing this repo leans on Codex's fallback support for
+Claude Code's manifest shape rather than shipping a `.codex-plugin/` of its
+own. That's deliberate for now: one manifest set serving both clients is
+simpler to keep in sync than two, and the fallback has held up under actual
+install/upgrade runs against this repo.
+
 **Claude Code:**
 
 ```
