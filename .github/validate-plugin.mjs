@@ -1,5 +1,8 @@
-// Validates this repository against Agent Plugins 1.0.0 and the Agent Skills
-// specification. Run it anywhere: `node .github/validate-plugin.mjs`
+// Checks this repository against a small, hand-picked subset of Agent
+// Plugins 1.0.0 and the Agent Skills specification — the structural
+// invariants below, not full schema conformance (no additionalProperties
+// enforcement, no type-checking of optional fields). Run it anywhere:
+// `node .github/validate-plugin.mjs`
 //
 // Why this exists: the failure it catches is silent. If a skill directory is
 // renamed and the `name:` in its SKILL.md is not, or a skill is nested one
@@ -14,9 +17,10 @@
 
 import { readdirSync, readFileSync } from "node:fs"
 import { join, relative } from "node:path"
+import { fileURLToPath } from "node:url"
 
 const PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
-const root = new URL("..", import.meta.url).pathname
+const root = fileURLToPath(new URL("..", import.meta.url))
 
 const findings = []
 const finding = (file, detail) => findings.push({ file, detail })
@@ -106,7 +110,7 @@ for (const stray of findStraySkillFiles(skillsDir)) {
 // --- report ----------------------------------------------------------------
 
 if (findings.length === 0) {
-	console.log(`OK — plugin.json and ${skillDirs.length} skill(s) conform to Agent Plugins 1.0.0`)
+	console.log(`OK — plugin.json and ${skillDirs.length} skill(s) pass these checks (not a full spec validator — see the comment at the top of this file)`)
 	process.exit(0)
 }
 
