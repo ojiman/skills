@@ -65,8 +65,8 @@ back to `.claude-plugin/marketplace.json`.
 
 For Codex specifically, `.claude-plugin/marketplace.json` is a *compatibility*
 path, not its canonical format — `.codex-plugin/plugin.json` is. The command
-sequence below is real and tested, not a workaround to avoid depending on;
-it's just worth knowing this repo leans on Codex's fallback support for
+sequence below is real and tested, not something to avoid relying on; it's
+just worth knowing this repo leans on Codex's fallback support for
 Claude Code's manifest shape rather than shipping a `.codex-plugin/` of its
 own. That's deliberate for now: one manifest set serving both clients is
 simpler to keep in sync than two, and the fallback has held up under actual
