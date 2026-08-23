@@ -1,0 +1,13 @@
+{
+  "name": "ojiman-skills",
+  "owner": {
+    "name": "ojiman"
+  },
+  "plugins": [
+    {
+      "name": "ojiman-skills",
+      "source": "./",
+      "description": "A small personal collection of Agent Skills, each written up from something that actually went wrong on a real project."
+    }
+  ]
+}

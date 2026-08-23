@@ -1,8 +1,8 @@
 // Checks this repository against a small, hand-picked subset of Agent
-// Plugins 1.0.0 and the Agent Skills specification — the structural
-// invariants below, not full schema conformance (no additionalProperties
-// enforcement, no type-checking of optional fields). Run it anywhere:
-// `node .github/validate-plugin.mjs`
+// Plugins 1.0.0, the Agent Skills specification, and Claude Code's own
+// .claude-plugin/ plugin format — the structural invariants below, not full
+// schema conformance (no additionalProperties enforcement, no type-checking
+// of optional fields). Run it anywhere: `node .github/validate-plugin.mjs`
 //
 // Why this exists: the failure it catches is silent. If a skill directory is
 // renamed and the `name:` in its SKILL.md is not, or a skill is nested one
@@ -15,7 +15,7 @@
 //
 // No dependencies, on purpose: nothing to install, nothing to keep updated.
 
-import { readdirSync, readFileSync } from "node:fs"
+import { readdirSync, readFileSync, statSync } from "node:fs"
 import { join, relative } from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -42,6 +42,63 @@ if (plugin) {
 	// name: 1-64 characters, lowercase alphanumerics, hyphens and periods.
 	if (typeof plugin.name !== "string" || !/^[a-z0-9.-]{1,64}$/.test(plugin.name)) {
 		finding("plugin.json", `name must be 1-64 chars of [a-z0-9.-], found ${JSON.stringify(plugin.name)}`)
+	}
+}
+
+// --- .claude-plugin/ (Claude Code's own plugin format) ----------------------
+
+// Claude Code doesn't read root-level plugin.json (that's Agent Plugins
+// 1.0.0) — it looks for .claude-plugin/plugin.json and
+// .claude-plugin/marketplace.json instead. Both live alongside the Agent
+// Plugins manifest so this repo installs directly in either client.
+
+let claudePlugin
+try {
+	claudePlugin = JSON.parse(readFileSync(join(root, ".claude-plugin", "plugin.json"), "utf8"))
+} catch (err) {
+	finding(".claude-plugin/plugin.json", `not readable as JSON: ${err.message}`)
+}
+if (claudePlugin && typeof claudePlugin.name !== "string") {
+	finding(".claude-plugin/plugin.json", `name must be a string, found ${JSON.stringify(claudePlugin.name)}`)
+}
+
+let marketplace
+try {
+	marketplace = JSON.parse(readFileSync(join(root, ".claude-plugin", "marketplace.json"), "utf8"))
+} catch (err) {
+	finding(".claude-plugin/marketplace.json", `not readable as JSON: ${err.message}`)
+}
+if (marketplace) {
+	if (typeof marketplace.name !== "string") {
+		finding(".claude-plugin/marketplace.json", `name must be a string, found ${JSON.stringify(marketplace.name)}`)
+	}
+	if (!marketplace.owner || typeof marketplace.owner.name !== "string") {
+		finding(".claude-plugin/marketplace.json", "owner.name must be a string")
+	}
+	if (!Array.isArray(marketplace.plugins) || marketplace.plugins.length === 0) {
+		finding(".claude-plugin/marketplace.json", "plugins must be a non-empty array")
+	}
+	for (const [i, entry] of (marketplace.plugins ?? []).entries()) {
+		const label = `.claude-plugin/marketplace.json plugins[${i}]`
+		if (typeof entry.name !== "string") {
+			finding(label, `name must be a string, found ${JSON.stringify(entry.name)}`)
+		}
+		// Only relative-path sources are checked here — the ones that can
+		// silently point at nothing. github/url/npm/etc. sources are fetched
+		// at install time and out of reach of a static check like this one.
+		if (typeof entry.source === "string") {
+			if (!entry.source.startsWith("./")) {
+				finding(label, `relative source "${entry.source}" must start with "./"`)
+			} else {
+				try {
+					if (!statSync(join(root, entry.source)).isDirectory()) {
+						finding(label, `source "${entry.source}" is not a directory`)
+					}
+				} catch {
+					finding(label, `source "${entry.source}" does not resolve to an existing path in the repo`)
+				}
+			}
+		}
 	}
 }
 
