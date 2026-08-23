@@ -16,7 +16,7 @@
 // No dependencies, on purpose: nothing to install, nothing to keep updated.
 
 import { readdirSync, readFileSync, statSync } from "node:fs"
-import { join, relative } from "node:path"
+import { join, relative, resolve, sep } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const PLUGIN_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
@@ -83,21 +83,36 @@ if (marketplace) {
 		if (typeof entry.name !== "string") {
 			finding(label, `name must be a string, found ${JSON.stringify(entry.name)}`)
 		}
-		// Only relative-path sources are checked here — the ones that can
-		// silently point at nothing. github/url/npm/etc. sources are fetched
-		// at install time and out of reach of a static check like this one.
-		if (typeof entry.source === "string") {
+		// source is required. Relative-path sources are checked fully — the
+		// ones that can silently point at nothing, or outside the repo entirely.
+		// github/url/npm/etc. sources are objects, fetched at install time and
+		// out of reach of a static check like this one, so only their shape (an
+		// object) is confirmed here, not their contents.
+		const rootNoTrailingSep = root.replace(/[/\\]+$/, "")
+		if (entry.source === undefined) {
+			finding(label, "source is required")
+		} else if (typeof entry.source === "string") {
 			if (!entry.source.startsWith("./")) {
 				finding(label, `relative source "${entry.source}" must start with "./"`)
 			} else {
-				try {
-					if (!statSync(join(root, entry.source)).isDirectory()) {
-						finding(label, `source "${entry.source}" is not a directory`)
+				// Resolve and confirm containment before touching the filesystem —
+				// "./.." starts with "./" but escapes root, and join() alone (used
+				// previously here) doesn't catch that.
+				const resolved = resolve(root, entry.source)
+				if (resolved !== rootNoTrailingSep && !resolved.startsWith(rootNoTrailingSep + sep)) {
+					finding(label, `source "${entry.source}" resolves outside the repository root`)
+				} else {
+					try {
+						if (!statSync(resolved).isDirectory()) {
+							finding(label, `source "${entry.source}" is not a directory`)
+						}
+					} catch {
+						finding(label, `source "${entry.source}" does not resolve to an existing path in the repo`)
 					}
-				} catch {
-					finding(label, `source "${entry.source}" does not resolve to an existing path in the repo`)
 				}
 			}
+		} else if (typeof entry.source !== "object" || entry.source === null) {
+			finding(label, `source must be a relative path string or a source object, found ${JSON.stringify(entry.source)}`)
 		}
 	}
 }
