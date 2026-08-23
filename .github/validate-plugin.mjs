@@ -83,11 +83,13 @@ if (marketplace) {
 		if (typeof entry.name !== "string") {
 			finding(label, `name must be a string, found ${JSON.stringify(entry.name)}`)
 		}
-		// source is required. Relative-path sources are checked fully — the
-		// ones that can silently point at nothing, or outside the repo entirely.
-		// github/url/npm/etc. sources are objects, fetched at install time and
-		// out of reach of a static check like this one, so only their shape (an
-		// object) is confirmed here, not their contents.
+		// source is required. This repo only ever uses a relative-path string
+		// (see marketplace.json), so that's the only form checked. An object
+		// source (github/url/npm/etc.) has its own schema this checker doesn't
+		// know — accepting any object here would be a pass that looks like
+		// validation without being one, the same gap the relative-path check
+		// below exists to close. Add real support for a specific object form
+		// if this repo ever adopts one, rather than accepting all of them now.
 		const rootNoTrailingSep = root.replace(/[/\\]+$/, "")
 		if (entry.source === undefined) {
 			finding(label, "source is required")
@@ -111,8 +113,8 @@ if (marketplace) {
 					}
 				}
 			}
-		} else if (typeof entry.source !== "object" || entry.source === null) {
-			finding(label, `source must be a relative path string or a source object, found ${JSON.stringify(entry.source)}`)
+		} else {
+			finding(label, `source must be a relative path string — this validator only supports that form, found ${JSON.stringify(entry.source)}`)
 		}
 	}
 }
