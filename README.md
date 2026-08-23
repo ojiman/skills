@@ -37,10 +37,10 @@ n = 1.
 ## Layout
 
 ```
-plugin.json                          # Agent Plugins 1.0.0 manifest (Codex CLI, etc.)
+plugin.json                          # Agent Plugins 1.0.0 manifest (generic fallback)
 .claude-plugin/
-  plugin.json                        # Claude Code's own plugin manifest
-  marketplace.json                   # lets `/plugin marketplace add` find it
+  plugin.json                        # plugin manifest Claude Code and Codex CLI both read
+  marketplace.json                   # lets `marketplace add` find it in either client
 skills/
   complexity-budget/
     SKILL.md
@@ -56,27 +56,43 @@ Skills here are invoked automatically from their `description` —
 `complexity-budget` in particular is meant to fire *before* new mechanism is
 built, so it does not depend on being called by name.
 
-**Claude Code** doesn't read Agent Plugins 1.0.0 directly — it has its own
-plugin format (`.claude-plugin/plugin.json` + `.claude-plugin/marketplace.json`),
-which this repo also carries so both formats work from the same source:
+Claude Code and Codex CLI both install from the same `.claude-plugin/`
+manifest — verified end-to-end against both. Neither reads the root
+`plugin.json` for installation; notably, Codex's marketplace loader rejects a
+bare Agent Plugins 1.0.0 `plugin.json` at the repo root (tested: `marketplace
+root does not contain a supported manifest`) and only succeeds once it falls
+back to `.claude-plugin/marketplace.json`.
+
+**Claude Code:**
 
 ```
 /plugin marketplace add ojiman/skills
 /plugin install ojiman-skills@ojiman-skills
 ```
 
-Update later with `/plugin marketplace update ojiman-skills`, or turn on
-auto-update for the marketplace in `/plugin` → Marketplaces.
+Update: `/plugin marketplace update ojiman-skills`, or turn on auto-update
+for the marketplace in `/plugin` → Marketplaces.
 
-**Codex CLI** (v0.147+) reads Agent Plugins 1.0.0 natively, so the root
-`plugin.json` in this repo is what it targets — no separate manifest needed.
-Point it at this repo the same way you'd add any other plugin source, e.g.
-`codex plugin marketplace add ojiman/skills`; check `codex plugin --help` for
-the exact install/update subcommand in your installed version, since that
-surface is still moving.
+**Codex CLI** (tested on v0.147+):
 
-**Any other client**: install as an Agent Plugins 1.0.0 plugin, or just copy
-any directory under `skills/` into your agent's skills directory.
+```
+codex plugin marketplace add ojiman/skills
+codex plugin add ojiman-skills@ojiman-skills
+```
+
+Update:
+
+```
+codex plugin marketplace upgrade ojiman-skills
+codex plugin add ojiman-skills@ojiman-skills
+```
+
+(`marketplace upgrade` refreshes the tracked commit; re-running `plugin add`
+installs whatever version that snapshot now has.)
+
+**Any other client**: install as an Agent Plugins 1.0.0 plugin using the root
+`plugin.json`, or just copy any directory under `skills/` into your agent's
+skills directory.
 
 ## Checks
 
