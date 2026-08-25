@@ -90,7 +90,9 @@ between you and a working extension," not as "amortised verification cost."
 If a technical term appears in the user's request or a source the user
 supplied, keep it, translate it in one sentence, and explain why it matters to
 the requested outcome. Also keep the exact name of an API, standard, or
-requirement that the task must preserve, with a plain-language translation.
+requirement that appears in the user's request, a supplied source, the
+code/API surface, or the cited requirement from step 4, with a plain-language
+translation.
 Otherwise, reword it into plain language. Do not keep jargon merely because it
 feels more precise.
 

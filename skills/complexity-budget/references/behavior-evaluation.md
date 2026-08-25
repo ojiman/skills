@@ -93,6 +93,18 @@ or standard from a supplied source.
 **Result:** PASS — necessary terminology is preserved by an observable source
 or contract, not by the agent's private preference.
 
+### 7. Open-ended build start: the stopping boundary is unclear
+
+**Prompt:** The user asks the agent to explore or build an outcome but does
+not make the deliverable, completion condition, or exclusions clear.
+
+| Control: without the skill | With the skill |
+| --- | --- |
+| Starts producing intermediate artifacts without first defining what the user will have when the work stops. | Defines Outcome, Stop condition, and Out of scope once, then proceeds without repeating the setup on every edit. |
+
+**Result:** PASS — an open-ended task gets a stopping boundary before it can
+grow an unbounded chain of intermediate work.
+
 ## Checkpoint length check
 
 Representative output for scenario 1:
@@ -116,9 +128,10 @@ regression cases:
 - trigger recall for runaway follow-up work;
 - precision when the user explicitly names the deliverable;
 - full-mechanism recommendations for genuinely required complexity;
-- respect for an explicit approval; and
-- progress checks during a long single phase; and
-- source-backed technical vocabulary boundaries; and
+- respect for an explicit approval;
+- progress checks during a long single phase;
+- source-backed technical vocabulary boundaries;
+- the one-time open-ended-build stopping boundary; and
 - the 150-word checkpoint limit.
 
 The record does not establish a quantitative trigger score. It is a compact

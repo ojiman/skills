@@ -26,6 +26,9 @@ phase or mechanism and when intermediate artifacts accumulate without changing
 what the user would have if we stopped:
 *if we stopped right now, what would you actually have?*
 
+At the start of an open-ended build with no clear outcome or stop condition,
+it defines the Outcome, Stop condition, and Out of scope once.
+
 Guardrails in agentic coding are usually discussed as a security topic. This
 one is a productivity guardrail with the same shape: the risk is not that the
 agent does something malicious, it is that the human quietly stops being able
