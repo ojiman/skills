@@ -21,7 +21,9 @@ body of work that does not yet do the thing that was asked for.
 **What the skill does:** it makes the agent stop and price each *new category
 of mechanism* before building it — name it as new, say concretely what breaks
 if it is skipped, price it in the user's own words, and offer a smaller option
-with a recommendation. It also has the agent periodically answer, unprompted:
+with a recommendation. It also has the agent answer, unprompted, before a new
+phase or mechanism and when intermediate artifacts accumulate without changing
+what the user would have if we stopped:
 *if we stopped right now, what would you actually have?*
 
 Guardrails in agentic coding are usually discussed as a security topic. This
@@ -41,6 +43,7 @@ plugin.json
 skills/
   complexity-budget/
     SKILL.md
+    references/behavior-evaluation.md
     references/case-record.md
 ```
 

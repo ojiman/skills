@@ -87,17 +87,23 @@ recommend skipping.
 Start with the words the user used when they described the goal. If they said
 "remove features from the OSS extension," price it as "this is one more thing
 between you and a working extension," not as "amortised verification cost."
-If a necessary technical term has not appeared in the conversation, translate
-it in one sentence, then use it consistently. Do not reword away a distinction
-that the work actually needs.
+If a technical term appears in the user's request or a source the user
+supplied, keep it, translate it in one sentence, and explain why it matters to
+the requested outcome. Also keep the exact name of an API, standard, or
+requirement that the task must preserve, with a plain-language translation.
+Otherwise, reword it into plain language. Do not keep jargon merely because it
+feels more precise.
 
 **4. Offer a smaller option and a recommendation.**
 Offer at least two when a compliant smaller option exists: the full mechanism
 and the smallest thing that addresses the same risk (often: write it down and
 check it by hand for now). State which you would pick and why. If a concrete
-requirement leaves no compliant smaller option, say that explicitly, name the
-requirement, and recommend the full mechanism rather than inventing a weaker
-alternative.
+requirement leaves no compliant smaller option, use this exception only when it
+is a user-stated requirement or cited source, such as a regulation, policy,
+specification, or security constraint. Name the requirement and source, then
+recommend the full mechanism rather than inventing a weaker alternative. If
+the requirement is only your inference, label it as an assumption and still
+offer the smaller option or ask the user.
 
 Then wait. Do not build past a checkpoint on the assumption it will be
 approved.
@@ -116,6 +122,12 @@ documentation and checks, but still no installable extension" is.
 This is the single highest-value habit in this skill. It is the only routine
 signal that reliably separates "we are making progress" from "we are making
 artifacts," and the user usually cannot generate it themselves.
+
+If a task remains in one phase while substantive intermediate artifacts or
+decisions accumulate, report before continuing when the answer to the
+standing question is unchanged since the last report or task start. This
+catches work that is producing artifacts without moving the requested
+deliverable forward, without interrupting every edit.
 
 ## When the user says "keep going"
 
