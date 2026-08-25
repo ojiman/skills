@@ -1,6 +1,6 @@
 ---
 name: complexity-budget
-description: "Use when work is growing past what the user actually asked for — before introducing a new mechanism, layer, gate, framework, abstraction, or process step the user did not name; when a design doc, CI pipeline, review process, or spec has started generating its own follow-up work; when the user says they have lost track of what is being built, cannot explain why a component exists, or asks whether this is too much. Forces a stop-and-price check before the mechanism is built, not after. Also use at the start of an open-ended build to fix a stopping condition. Keywords: scope creep, over-engineering, gold plating, yak shaving, complexity budget, stop building, do we need this, simplest thing that works, why does this exist."
+description: "Use when scope creep or over-engineering is making work grow beyond what the user asked for: before proposing or building an unrequested new category of mechanism such as a layer, gate, framework, abstraction, policy, config, generator, or review artifact; when a design, CI pipeline, review process, or spec is generating follow-up work; when the user says they have lost track of what is being built or asks whether this is too much; or at the start of an open-ended build that lacks a clear outcome and stop condition. Do not use merely because the user explicitly requested the mechanism as the deliverable."
 license: MIT
 ---
 
@@ -40,10 +40,31 @@ layer, a code-generation step, a plugin system, a new config file, a new
 review artifact, a new document that other documents must stay consistent
 with.
 
+**Operational test:** when the boundary is unclear, ask whether someone will
+need to maintain, operate, approve, or keep the thing accurate independently
+after the current task. If yes, treat it as a new category. If it is only
+another test case, field on an existing type, entry in an existing list, or
+commit, it is not. This is a judgment aid, not a replacement for the "adds a
+noun" explanation.
+
 Not a new category: another test case, another field on an existing type,
 another entry in an existing list, another commit. Do not run the checkpoint
 for these — a checkpoint on every edit is its own kind of noise, and it
 trains the user to skim.
+
+## Open-ended build start
+
+At the start of an open-ended build, first check whether the requested outcome
+and a stopping condition are already clear. If they are not, define them once:
+
+- **Outcome:** the concrete deliverable the user will have.
+- **Stop condition:** the observable condition that means the requested outcome
+  is complete.
+- **Out of scope:** work that will not be included in this task.
+
+If the user has already made these clear, do not interrupt just to restate
+them. This is a one-time boundary for the build, not a checkpoint on every
+edit.
 
 ## Checkpoint
 
@@ -63,11 +84,12 @@ If the honest answer is "nothing much, it's just tidier" — say that, and
 recommend skipping.
 
 **3. Price it in the user's own vocabulary.**
-Use the words the user used when they described the goal. If they said
+Start with the words the user used when they described the goal. If they said
 "remove features from the OSS extension," price it as "this is one more thing
 between you and a working extension," not as "amortised verification cost."
-Whenever you reach for a term the user has not used in this conversation,
-you have left their vocabulary — reword.
+If a necessary technical term has not appeared in the conversation, translate
+it in one sentence, then use it consistently. Do not reword away a distinction
+that the work actually needs.
 
 **4. Offer a smaller option and a recommendation.**
 Always at least two: the full mechanism, and the smallest thing that
@@ -78,10 +100,16 @@ only option.
 Then wait. Do not build past a checkpoint on the assumption it will be
 approved.
 
+The smaller option is not mandatory when a concrete requirement makes the
+full mechanism necessary. For example, if a regulatory or security gate is
+required, name the requirement and recommend the full mechanism; the
+checkpoint prices the choice but does not pretend that required work is
+optional.
+
 ## Standing progress report
 
-On any task longer than a few steps, periodically — and always before
-starting a new phase — answer one question, unprompted:
+On any task longer than a few steps, answer one question, unprompted, before
+starting a genuinely new phase or a new category of mechanism:
 
 > **If we stopped right now, what would the user actually have?**
 
