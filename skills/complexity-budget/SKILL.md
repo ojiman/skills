@@ -92,19 +92,15 @@ it in one sentence, then use it consistently. Do not reword away a distinction
 that the work actually needs.
 
 **4. Offer a smaller option and a recommendation.**
-Always at least two: the full mechanism, and the smallest thing that
-addresses the same risk (often: write it down and check it by hand for now).
-State which you would pick and why. Never present the full version as the
-only option.
+Offer at least two when a compliant smaller option exists: the full mechanism
+and the smallest thing that addresses the same risk (often: write it down and
+check it by hand for now). State which you would pick and why. If a concrete
+requirement leaves no compliant smaller option, say that explicitly, name the
+requirement, and recommend the full mechanism rather than inventing a weaker
+alternative.
 
 Then wait. Do not build past a checkpoint on the assumption it will be
 approved.
-
-The smaller option is not mandatory when a concrete requirement makes the
-full mechanism necessary. For example, if a regulatory or security gate is
-required, name the requirement and recommend the full mechanism; the
-checkpoint prices the choice but does not pretend that required work is
-optional.
 
 ## Standing progress report
 

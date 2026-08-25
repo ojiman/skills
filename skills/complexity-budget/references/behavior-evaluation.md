@@ -1,7 +1,7 @@
 # Complexity-budget behavior evaluation
 
 Date: 2026-08-25
-Scope: trigger timing, false positives, necessary complexity, and approval handling
+Scope: trigger accuracy, false positives, instruction following, necessary complexity, approval handling, and checkpoint length
 
 ## Method
 
@@ -70,15 +70,15 @@ request.
 
 Representative output for scenario 1:
 
-> This adds a review artifact: a short checkpoint before adding the next
-> unrequested mechanism. If we skip it, the design may grow schemas, CI gates,
-> and selftests while the requested deliverable remains unfinished. That adds
-> another thing between you and the working result. Smaller option: write down
-> the outcome and stop condition and review the next mechanism by hand. I
-> recommend the smaller option for now because no concrete failure requires a
-> new gate.
+> This adds a CI gate, a new check the project would have to maintain. If we
+> skip it, the design's new schema and selftests can remain unverified until
+> the requested document is done, but adding it now puts another mechanism
+> between you and the deliverable. Smaller option: record the verification
+> step in the document and run it once by hand. I recommend the smaller
+> option because the user asked for the design document, not a permanent build
+> gate.
 
-Whitespace-delimited count: **74 words**. This stays below the intended
+Whitespace-delimited count: **78 words**. This stays below the intended
 150-word checkpoint limit.
 
 ## Interpretation
